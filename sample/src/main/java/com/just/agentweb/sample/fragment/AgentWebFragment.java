@@ -35,7 +35,9 @@ import android.widget.Toast;
 import com.download.library.DownloadImpl;
 import com.download.library.DownloadListenerAdapter;
 import com.download.library.Extra;
+import com.download.library.FileComparator;
 import com.download.library.ResourceRequest;
+import com.download.library.Runtime;
 import com.google.gson.Gson;
 import com.just.agentweb.AbsAgentWebSettings;
 import com.just.agentweb.AgentWeb;
@@ -55,6 +57,7 @@ import com.just.agentweb.sample.common.CommonWebChromeClient;
 import com.just.agentweb.sample.common.FragmentKeyDown;
 import com.just.agentweb.sample.common.UIController;
 
+import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -134,6 +137,17 @@ public class AgentWebFragment extends Fragment implements FragmentKeyDown {
 
 //		mAgentWeb.getWebCreator().getWebView().setOnLongClickListener();
 
+//		Runtime.getInstance().setFileComparatorFactory(new FileComparator.FileComparatorFactory() {
+//			@Override
+//			public FileComparator newFileComparator() {
+//				return new FileComparator() {
+//					@Override
+//					public int compare(String url, File originFile, String inputMD5, String originFileMD5) {
+//						return FileComparator.COMPARE_RESULT_SUCCESSFUL;
+//					}
+//				};
+//			}
+//		});
 	}
 
 
@@ -239,7 +253,7 @@ public class AgentWebFragment extends Fragment implements FragmentKeyDown {
 	protected com.just.agentweb.WebChromeClient mWebChromeClient = new WebChromeClient() {
 		@Override
 		public void onProgressChanged(WebView view, int newProgress) {
-			//  super.onProgressChanged(view, newProgress);
+			  super.onProgressChanged(view, newProgress);
 			Log.i(TAG, "onProgressChanged:" + newProgress + "  view:" + view);
 		}
 
@@ -582,6 +596,13 @@ public class AgentWebFragment extends Fragment implements FragmentKeyDown {
 			public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
 				Log.e(TAG, "MiddlewareWebClientBase#shouldOverrideUrlLoading request url:" + request.getUrl().toString());
 				return super.shouldOverrideUrlLoading(view, request);
+			}
+
+			@Override
+			public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+				if (request.isForMainFrame() && error.getErrorCode() != -1) {
+					super.onReceivedError(view, request, error);
+				}
 			}
 		};
 	}
